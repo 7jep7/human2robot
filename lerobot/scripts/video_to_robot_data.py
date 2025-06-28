@@ -319,7 +319,7 @@ def main():
     """Main entry point for the video-to-robot-data script."""
     init_logging()
     
-    # Parse arguments  
+    # Parse arguments
     parser = argparse.ArgumentParser(description="Convert videos to robot training data")
     
     # Input arguments
