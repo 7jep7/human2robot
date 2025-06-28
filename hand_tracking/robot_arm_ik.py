@@ -280,40 +280,34 @@ class HandTrackingRobotIntegration:
                     self.thumb_positions.append((thumb_x, thumb_y))
                     self.index_positions.append((index_x, index_y))
                     
-                    # Improved gripper state calculation
-                    # Use multiple metrics for better gripper detection
+                    # Improved gripper state calculation - much more sensitive
+                    # Calculate distance between thumb and index tips
                     thumb_index_dist = np.sqrt((thumb_x - index_x)**2 + (thumb_y - index_y)**2)
                     
-                    # Also check angle between thumb and index relative to palm
-                    thumb_angle = np.arctan2(thumb_tip.y - wrist.y, thumb_tip.x - wrist.x)
-                    index_angle = np.arctan2(index_tip.y - wrist.y, index_tip.x - wrist.x)
-                    finger_spread = abs(thumb_angle - index_angle)
+                    # More sensitive gripper detection - scale the distance more aggressively
+                    # In video coordinates, even small movements should open the gripper
+                    base_distance = 0.05  # Minimum distance for closed gripper
+                    max_distance = 0.25   # Distance for fully open gripper
                     
-                    # Combine distance and angle for gripper state
-                    # Normalize and scale appropriately
-                    normalized_dist = min(thumb_index_dist * 8, 1.0)  # More sensitive
-                    normalized_spread = min(finger_spread * 2, 1.0)
+                    # Normalize distance to 0-1 range
+                    normalized_dist = max(0, min(1, (thumb_index_dist - base_distance) / (max_distance - base_distance)))
                     
-                    # Gripper opening: more open when fingers are spread or far apart
-                    gripper_angle = max(normalized_dist, normalized_spread) * np.pi/3  # Max 60 degrees
+                    # Apply exponential scaling to make it more sensitive to small movements
+                    gripper_opening = normalized_dist ** 0.5  # Square root for more sensitivity
+                    gripper_angle = gripper_opening * np.pi/3  # Max 60 degrees opening
+                    
                     self.gripper_states.append(gripper_angle)
                     
-                    # Calculate gripper orientation based on movement direction
-                    if len(self.thumb_positions) > 1:
-                        prev_thumb_x, prev_thumb_y = self.thumb_positions[-2]
-                        dx = thumb_x - prev_thumb_x
-                        dy = thumb_y - prev_thumb_y
-                        
-                        # Calculate movement direction
-                        if abs(dx) > 1e-4 or abs(dy) > 1e-4:  # Only update if there's movement
-                            orientation = np.arctan2(dy, dx)
-                        else:
-                            # Use previous orientation if no movement
-                            orientation = self.gripper_orientations[-1] if self.gripper_orientations else 0.0
-                    else:
-                        orientation = 0.0  # Default pointing right
+                    # Fixed gripper orientation - point horizontally right for demo
+                    # In a real robot, this would be calculated from wrist/forearm angles
+                    orientation = 0.0  # Always point right (positive X direction)
                     
                     self.gripper_orientations.append(orientation)
+                    
+                    # Debug gripper detection every 10 frames
+                    if frame_count % 10 == 0:
+                        print(f"Frame {frame_count}: Distance={thumb_index_dist:.3f}, "
+                              f"Normalized={normalized_dist:.3f}, Gripper={gripper_angle:.3f}rad")
                     
                     # Perform inverse kinematics for thumb position
                     prev_angles = self.joint_angles[-1] if self.joint_angles else None
@@ -442,18 +436,16 @@ class HandTrackingRobotIntegration:
             center_x: Center X position in pixels
             center_y: Center Y position in pixels
             gripper_angle: Gripper opening angle in radians
-            orientation: Gripper pointing direction in radians
+            orientation: Gripper pointing direction in radians (0 = right, π/2 = up, etc.)
             scale: Scale factor for gripper size
         """
         # Gripper parameters
-        base_length = int(40 * scale)
-        max_jaw_length = int(60 * scale)
-        jaw_width = int(12 * scale)
+        base_length = int(30 * scale)
+        max_jaw_length = int(50 * scale)
+        jaw_width = int(8 * scale)
         
         # Calculate jaw opening based on gripper angle
-        # When closed (angle=0): jaws form triangle
-        # When open (angle=pi/3): jaws spread apart
-        jaw_opening = min(gripper_angle, np.pi/3)  # Max opening angle
+        jaw_opening = min(gripper_angle, np.pi/2)  # Max 90 degrees opening
         
         # Rotation matrix for orientation
         cos_orient = np.cos(orientation)
@@ -467,71 +459,70 @@ class HandTrackingRobotIntegration:
         
         # Base triangle (gripper body) - points forward in direction of orientation
         base_pts = np.array([
-            rotate_point(-base_length//3, -jaw_width//2),
-            rotate_point(-base_length//3, jaw_width//2),
-            rotate_point(base_length//3, 0)
+            rotate_point(-base_length//2, -jaw_width//2),
+            rotate_point(-base_length//2, jaw_width//2),
+            rotate_point(0, 0)  # Point at center
         ], np.int32)
         
-        # Upper jaw (triangular when closed, spreads when open)
+        # Upper jaw - starts horizontal and rotates up when opening
         upper_angle = -jaw_opening / 2
         upper_tip_x_local = max_jaw_length * np.cos(upper_angle)
         upper_tip_y_local = max_jaw_length * np.sin(upper_angle)
         
         upper_jaw_pts = np.array([
-            rotate_point(0, -jaw_width//4),
-            rotate_point(0, jaw_width//4),
+            rotate_point(0, -jaw_width//3),
+            rotate_point(0, 0),
             rotate_point(upper_tip_x_local, upper_tip_y_local)
         ], np.int32)
         
-        # Lower jaw
+        # Lower jaw - starts horizontal and rotates down when opening
         lower_angle = jaw_opening / 2
         lower_tip_x_local = max_jaw_length * np.cos(lower_angle)
         lower_tip_y_local = max_jaw_length * np.sin(lower_angle)
         
         lower_jaw_pts = np.array([
-            rotate_point(0, -jaw_width//4),
-            rotate_point(0, jaw_width//4),
+            rotate_point(0, 0),
+            rotate_point(0, jaw_width//3),
             rotate_point(lower_tip_x_local, lower_tip_y_local)
         ], np.int32)
         
-        # Draw gripper components
-        # Base (darker green)
-        cv.fillPoly(frame, [base_pts], (0, 180, 0))
-        cv.polylines(frame, [base_pts], True, (0, 100, 0), 2)
+        # Draw gripper components with better colors
+        # Base (dark green)
+        cv.fillPoly(frame, [base_pts], (0, 150, 0))
+        cv.polylines(frame, [base_pts], True, (0, 100, 0), 3)
         
         # Upper jaw (bright green)
         cv.fillPoly(frame, [upper_jaw_pts], (50, 255, 50))
-        cv.polylines(frame, [upper_jaw_pts], True, (0, 200, 0), 2)
+        cv.polylines(frame, [upper_jaw_pts], True, (0, 200, 0), 3)
         
         # Lower jaw (bright green)
         cv.fillPoly(frame, [lower_jaw_pts], (50, 255, 50))
-        cv.polylines(frame, [lower_jaw_pts], True, (0, 200, 0), 2)
+        cv.polylines(frame, [lower_jaw_pts], True, (0, 200, 0), 3)
         
         # Add gripper joint/pivot point
-        cv.circle(frame, (center_x, center_y), int(8 * scale), (0, 100, 0), -1)
-        cv.circle(frame, (center_x, center_y), int(8 * scale), (255, 255, 255), 2)
+        cv.circle(frame, (center_x, center_y), int(6 * scale), (0, 100, 0), -1)
+        cv.circle(frame, (center_x, center_y), int(6 * scale), (255, 255, 255), 2)
         
-        # Add teeth/serrations for more realistic look
-        if jaw_opening < np.pi/6:  # Only show teeth when mostly closed
+        # Add teeth/serrations when mostly closed
+        if jaw_opening < np.pi/4:  # Show teeth when less than 45 degrees open
             # Upper jaw teeth
-            for i in range(3):
-                tooth_base_x = 20 + i * 10
-                tooth_x1, tooth_y1 = rotate_point(tooth_base_x, -3)
-                tooth_x2, tooth_y2 = rotate_point(tooth_base_x, 3)
+            for i in range(2):
+                tooth_base_x = 15 + i * 15
+                tooth_x1, tooth_y1 = rotate_point(tooth_base_x, -2)
+                tooth_x2, tooth_y2 = rotate_point(tooth_base_x, 2)
                 cv.line(frame, (tooth_x1, tooth_y1), (tooth_x2, tooth_y2), (255, 255, 255), 2)
             
             # Lower jaw teeth
-            for i in range(3):
-                tooth_base_x = 20 + i * 10
-                tooth_x1, tooth_y1 = rotate_point(tooth_base_x, -3)
-                tooth_x2, tooth_y2 = rotate_point(tooth_base_x, 3)
+            for i in range(2):
+                tooth_base_x = 15 + i * 15
+                tooth_x1, tooth_y1 = rotate_point(tooth_base_x, -2)
+                tooth_x2, tooth_y2 = rotate_point(tooth_base_x, 2)
                 cv.line(frame, (tooth_x1, tooth_y1), (tooth_x2, tooth_y2), (255, 255, 255), 2)
         
-        # Add direction arrow to show orientation
-        arrow_start_x, arrow_start_y = rotate_point(-15, 0)
-        arrow_end_x, arrow_end_y = rotate_point(15, 0)
-        cv.arrowedLine(frame, (arrow_start_x, arrow_start_y), (arrow_end_x, arrow_end_y), 
-                      (255, 255, 0), 2, tipLength=0.3)
+        # Add direction indicator (small arrow showing gripper direction)
+        arrow_start = rotate_point(-15, 0)
+        arrow_end = rotate_point(max_jaw_length + 10, 0)
+        cv.arrowedLine(frame, arrow_start, arrow_end, (0, 255, 255), 3, tipLength=0.2)
 
     def create_overlay_video(self, output_path: str = "robot_arm.mp4"):
         """
