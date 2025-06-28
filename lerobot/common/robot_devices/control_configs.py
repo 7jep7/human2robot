@@ -123,6 +123,43 @@ class RemoteRobotConfig(ControlConfig):
     viewer_port: str | None = None
 
 
+@ControlConfig.register_subclass("video_to_data")
+@dataclass 
+class VideoToDataControlConfig(ControlConfig):
+    # Input video configuration
+    video_path: str | None = None
+    video_dir: str | None = None
+    
+    # Output configuration
+    output_dataset: str = "video_generated_dataset"
+    output_root: str | Path | None = None
+    
+    # Task configuration
+    task: str = "Manipulation task from video"
+    
+    # Processing configuration
+    fps: int = 30
+    smooth_trajectory: bool = True
+    validate_trajectory: bool = True
+    
+    # Workspace configuration (bounds as [x_min, x_max, y_min, y_max, z_min, z_max])
+    workspace_bounds: list[float] | None = None
+    
+    # Computer vision configuration
+    cv_model_type: str = "mediapipe"  # placeholder for CV team integration
+    cv_confidence_threshold: float = 0.8
+    
+    # Inverse kinematics configuration
+    ik_solver: str = "jacobian"  # or "numerical"
+    ik_max_iterations: int = 1000
+    ik_tolerance: float = 1e-4
+    
+    # Dataset configuration
+    push_to_hub: bool = False
+    private: bool = False
+    tags: list[str] | None = None
+
+
 @dataclass
 class ControlPipelineConfig:
     robot: RobotConfig
