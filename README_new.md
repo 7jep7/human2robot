@@ -1,7 +1,5 @@
 # human2robot: Computer Vision to Robot Training Data Pipeline
 
-> **Note**: This project is cloned/forked from [Hugging Face's lerobot repository](https://github.com/huggingface/lerobot) and adapted for our hackathon goals.
-
 <p align="center">
   <strong>A 6-hour hackathon project transforming human demonstrations into robot training data</strong>
   <br/>
