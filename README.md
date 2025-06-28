@@ -8,6 +8,10 @@
   <em>Converting video demonstrations to teleoperated imitation learning datasets</em>
 </p>
 
+## 📋 Pitch Deck
+
+**[View our project pitch deck →](https://www.canva.com/design/DAGrp1t2CbU/rpmUw4W6mIyQFrgV70_NXA/edit?utm_content=DAGrp1t2CbU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)**
+
 ---
 
 ## 🎯 Project Overview
