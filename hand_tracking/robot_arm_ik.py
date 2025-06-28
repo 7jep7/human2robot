@@ -360,7 +360,7 @@ class HandTrackingRobotIntegration:
     
     def plot_joint_angles(self, save_path: str = "joint_angles.png"):
         """
-        Plot joint angles over time - single plot with all 6 joints
+        Plot joint angles over time - single plot with all 6 joints (presentation-ready)
         
         Args:
             save_path: Path to save the plot
@@ -369,7 +369,9 @@ class HandTrackingRobotIntegration:
             print("No joint angle data to plot")
             return
             
-        fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+        # Set presentation-ready style
+        plt.style.use('default')
+        fig, ax = plt.subplots(1, 1, figsize=(16, 10))  # Larger figure
         
         # Convert data to numpy arrays for easier plotting
         times = np.array(self.timestamps)
@@ -378,31 +380,57 @@ class HandTrackingRobotIntegration:
         
         # SO-101 joint names (from base to end-effector)
         joint_names = ['Base', 'Shoulder', 'Elbow', 'Forearm', 'Wrist', 'Gripper']
-        colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD']
+        # High contrast colors for presentation
+        colors = ['#E74C3C', '#3498DB', '#2ECC71', '#F39C12', '#9B59B6', '#E67E22']
         
-        # Plot all joint angles on the same plot
+        # Plot all joint angles with thick lines
         for i in range(5):
-            ax.plot(times, angles[:, i], color=colors[i], linewidth=2.5, 
-                   label=joint_names[i], alpha=0.8)
+            ax.plot(times, angles[:, i], color=colors[i], linewidth=4.5, 
+                   label=joint_names[i], alpha=0.9, solid_capstyle='round')
         
-        # Plot gripper
-        ax.plot(times, grippers, color=colors[5], linewidth=2.5, 
-               label=joint_names[5], alpha=0.8)
+        # Plot gripper with thick line
+        ax.plot(times, grippers, color=colors[5], linewidth=4.5, 
+               label=joint_names[5], alpha=0.9, solid_capstyle='round')
         
-        ax.set_title('SO-101 Robot Arm Joint Angles Over Time', fontsize=16, fontweight='bold')
-        ax.set_xlabel('Time (s)', fontsize=12)
-        ax.set_ylabel('Joint Angle (radians)', fontsize=12)
-        ax.grid(True, alpha=0.3)
-        ax.legend(loc='upper right', fontsize=10)
+        # Large, bold title
+        ax.set_title('SO-101 Robot Arm Joint Angles Over Time', 
+                    fontsize=28, fontweight='bold', pad=30)
+        
+        # Large axis labels
+        ax.set_xlabel('Time (s)', fontsize=22, fontweight='bold', labelpad=15)
+        ax.set_ylabel('Joint Angle (radians)', fontsize=22, fontweight='bold', labelpad=15)
+        
+        # Thick grid lines
+        ax.grid(True, alpha=0.4, linewidth=1.5)
+        
+        # Large legend with thicker lines
+        legend = ax.legend(loc='upper right', fontsize=18, frameon=True, 
+                          fancybox=True, shadow=True, framealpha=0.9)
+        legend.get_frame().set_facecolor('white')
+        legend.get_frame().set_edgecolor('gray')
+        legend.get_frame().set_linewidth(2)
+        
+        # Make legend lines thicker
+        for line in legend.get_lines():
+            line.set_linewidth(6)
         
         # Improve plot aesthetics
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_linewidth(2)
+        ax.spines['bottom'].set_linewidth(2)
+        
+        # Larger tick labels
+        ax.tick_params(axis='both', which='major', labelsize=16, width=2, length=8)
+        ax.tick_params(axis='both', which='minor', width=1, length=4)
+        
+        # Add minor ticks for better readability
+        ax.minorticks_on()
         
         plt.tight_layout()
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
         plt.show()
-        print(f"Joint angles plot saved to {save_path}")
+        print(f"Presentation-ready joint angles plot saved to {save_path}")
     
     def draw_so101_gripper(self, frame, center_x: int, center_y: int, gripper_angle: float, 
                           orientation: float = 0.0, scale: float = 1.0):
