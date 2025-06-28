@@ -176,3 +176,4 @@ cython_debug/
 *.mp4
 training_vids/
 hand_tracking/training_vids/
+
