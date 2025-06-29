@@ -298,9 +298,9 @@ class HandTrackingRobotIntegration:
                     
                     self.gripper_states.append(gripper_angle)
                     
-                    # Fixed gripper orientation - point horizontally right for demo
+                    # Fixed gripper orientation - point downwards for demo
                     # In a real robot, this would be calculated from wrist/forearm angles
-                    orientation = 0.0  # Always point right (positive X direction)
+                    orientation = np.pi/2  # Point downwards (positive Y direction)
                     
                     self.gripper_orientations.append(orientation)
                     
@@ -545,9 +545,12 @@ class HandTrackingRobotIntegration:
         width = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
         
+        # Reduce playback speed by factor of 2
+        output_fps = fps / 2.0
+        
         # Create video writer
         fourcc = cv.VideoWriter_fourcc(*'mp4v')
-        out = cv.VideoWriter(output_path, fourcc, fps, (width, height))
+        out = cv.VideoWriter(output_path, fourcc, output_fps, (width, height))
         
         frame_idx = 0
         
