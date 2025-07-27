@@ -127,7 +127,81 @@ This is a hackathon exploration project. We welcome:
 
 ---
 
-## 🔗 Built on LeRobot Foundation
+## � Development Roadmap
+
+### 📱 MVP Demo (Week 1)
+**Goal**: End-to-end pipeline from video → robot policy
+
+**Core Tasks:**
+1. **Complete Inverse Kinematics Bridge** (`hand_to_robot_ik.py`)
+   - Hand coordinate → robot workspace mapping
+   - 5DOF arm + gripper IK solver integration
+   - Temporal trajectory generation
+
+2. **Data Pipeline Integration**
+   - Convert CV+IK outputs to LeRobot dataset format
+   - Implement observation-action pair generation
+   - Add temporal synchronization and smoothing
+
+3. **Demo Implementation**
+   - Simple chess piece movement task
+   - Single camera, fixed workspace setup
+   - ACT policy training on generated data
+
+### 🚀 High-Impact Research Extensions (Weeks 2-4)
+
+**Vision & Perception Research:**
+- **Multi-view Geometry**: Camera calibration and 3D reconstruction from human demonstrations
+- **Domain Adaptation**: Learning visual mappings between human and robot perspectives
+- **Temporal Action Segmentation**: Automatic detection of action primitives in demonstrations
+
+**Robotics & Control:**
+- **Workspace Scaling**: Adaptive mapping between human and robot workspaces
+- **Trajectory Optimization**: Physics-informed smoothing and feasibility constraints
+- **Multi-robot Coordination**: Extending to bimanual or multi-agent scenarios
+
+**Machine Learning Foundations:**
+- **Comparative Policy Analysis**: Systematic evaluation of ACT vs Diffusion Policy performance
+- **Data Efficiency**: Few-shot learning from minimal human demonstrations
+- **Uncertainty Quantification**: Confidence estimation in generated robot trajectories
+
+**Novel Research Directions:**
+- **Synthetic Data Augmentation**: Physics simulation for expanding training datasets
+- **Cross-embodiment Transfer**: Learning mappings between different robot morphologies
+- **Interactive Learning**: Real-time feedback and correction mechanisms
+
+**Sensor Fusion & Modalities:**
+- **LiDAR Integration**: iPhone LiDAR (256x192) depth sensing for 3D workspace understanding
+- **Multi-sensor Fusion**: Combine RGB, depth, IMU, and tactile feedback
+- **Sensor Modality Transfer**: Learn mappings between different sensor types
+
+**Beyond Imitation Learning:**
+- **Hybrid IL+RL**: Use IL for reliable scene reset, then overnight RL for task optimization
+- **Comprehensive IL Survey**: Implement and compare SQIL, ValueDice, IQ-Learn, f-BRAC
+- **Advanced IL Methods**: Adversarial IL (GAIL), Distribution Matching (PM, BC-O)
+- **Simulation-to-Reality**: Isaac Lab integration for physics-based training
+
+### 🎯 Learning & Research Skills Development
+
+**Foundational Understanding:**
+- Implement core algorithms from scratch (IK solvers, transformers, diffusion models)
+- Mathematical foundations: robotics kinematics, probabilistic models, optimization
+- Experimental design: hypothesis formation, systematic evaluation, statistical analysis
+
+**Innovation Opportunities:**
+- **Novel Loss Functions**: Task-specific objectives for trajectory generation
+- **Architecture Design**: Custom neural network components for robotics
+- **Benchmark Creation**: Standardized evaluation protocols for video-to-robot learning
+
+### ⚠️ Hardware Access Timeline
+**Critical Constraint**: Hardware access ends in 5 days, then 2-4 month gap
+- **Priority**: Focus on simulation-based development (Isaac Lab, MuJoCo)
+- **Data Collection Sprint**: Gather comprehensive demonstration videos while hardware available
+- **Simulation-First Approach**: Develop and validate algorithms in simulation for future hardware deployment
+
+---
+
+## �🔗 Built on LeRobot Foundation
 
 This project builds upon the excellent [LeRobot](https://github.com/huggingface/lerobot) framework for the imitation learning components.
 

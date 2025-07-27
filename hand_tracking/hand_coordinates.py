@@ -24,7 +24,8 @@ options = HandLandmarkerOptions(
     min_tracking_confidence=0.3         # Lower threshold for tracking
 )
 
-cap = cv.VideoCapture('training_vids/push_2D_c3_to_c5_1.mp4')
+cap = cv.VideoCapture('training_vids/gripPush1.mp4')
+cap = cv.VideoCapture('training_vids/push_2D_c3_to_c5_1.mp4') # renamed video file to be more expressive, previous line is then redundant
 
 
 # Get video properties for frame timing
