@@ -23,7 +23,30 @@
 </div>
 
 <h2 align="center">
-    <p><a href="https://github.com/huggingface/lerobot/blob/main/examples/12_use_so101.md">
+    <p><a href="https://huggingface.co/docs/lerobot/hope_jr">
+        Build Your Own HopeJR Robot!</a></p>
+</h2>
+
+<div align="center">
+  <img
+    src="media/hope_jr/hopejr.png?raw=true"
+    alt="HopeJR robot"
+    title="HopeJR robot"
+    style="width: 60%;"
+  />
+
+  <p><strong>Meet HopeJR – A humanoid robot arm and hand for dexterous manipulation!</strong></p>
+  <p>Control it with exoskeletons and gloves for precise hand movements.</p>
+  <p>Perfect for advanced manipulation tasks! 🤖</p>
+
+  <p><a href="https://huggingface.co/docs/lerobot/hope_jr">
+      See the full HopeJR tutorial here.</a></p>
+</div>
+
+<br/>
+
+<h2 align="center">
+    <p><a href="https://huggingface.co/docs/lerobot/so101">
         Build Your Own SO-101 Robot!</a></p>
 </h2>
 
@@ -43,16 +66,15 @@
     />
   </div>
 
-
   <p><strong>Meet the updated SO100, the SO-101 – Just €114 per arm!</strong></p>
   <p>Train it in minutes with a few simple moves on your laptop.</p>
   <p>Then sit back and watch your creation act autonomously! 🤯</p>
 
-  <p><a href="https://github.com/huggingface/lerobot/blob/main/examples/12_use_so101.md">
+  <p><a href="https://huggingface.co/docs/lerobot/so101">
       See the full SO-101 tutorial here.</a></p>
 
   <p>Want to take it to the next level? Make your SO-101 mobile by building LeKiwi!</p>
-  <p>Check out the <a href="https://github.com/huggingface/lerobot/blob/main/examples/11_use_lekiwi.md">LeKiwi tutorial</a> and bring your robot to life on wheels.</p>
+  <p>Check out the <a href="https://huggingface.co/docs/lerobot/lekiwi">LeKiwi tutorial</a> and bring your robot to life on wheels.</p>
 
   <img src="media/lekiwi/kiwi.webp?raw=true" alt="LeKiwi mobile robot" title="LeKiwi mobile robot" width="50%">
 </div>
@@ -65,6 +87,198 @@
 
 ---
 
+## 🎯 Project Overview
+
+**human2robot** is a hackathon project that bridges the gap between human video demonstrations and robot training data. Instead of requiring expensive teleoperation hardware setups, we enable robot training from simple video recordings of human task demonstrations.
+
+### 🚀 The Vision
+
+Traditional robot imitation learning requires:
+1. Expensive leader-follower robot pairs for teleoperation
+2. Expert operators to demonstrate tasks
+3. Complex hardware setups and calibration
+
+**Our solution**: Record a human performing a task → Generate robot training data → Train robots via imitation learning
+
+### 👥 Team & Timeline
+- **Duration**: 6-hour hackathon
+- **Team**: 3 people
+  - **Dami + Omar**: UCL Robotics students (Computer Vision)
+  - **Jonas**: Inverse Kinematics & Robot Training Pipeline
+
+---
+
+## 🔧 Technical Architecture
+
+### Task 1: Computer Vision Pipeline (Dami + Omar)
+**Goal**: Extract end-effector motion and object interaction from video
+
+- **Input**: Video of human hand performing a simple task (e.g., moving a chess rook)
+- **Output**: 2D trajectory of end-effector position and object movement
+- **Scope**: Focus on simple push operations (rook from one square to adjacent square)
+- **Tech Stack**: Computer vision, object tracking, motion analysis
+
+### Task 2: Inverse Kinematics Engine (Jonas)
+**Goal**: Convert CV outputs to robot joint trajectories
+
+- **Input**: End-effector trajectories from Task 1
+- **Output**: Time series of joint positions (motor encoder data)
+- **Challenge**: Generate realistic robot motion that achieves the same task
+- **Result**: Training data equivalent to teleoperated demonstrations
+
+### Task 3: Marketplace Demo (Future)
+**Goal**: End-to-end demonstration platform
+
+- **Component A**: Task specification interface
+  - Users define desired robot behaviors
+  - Specify hardware requirements and constraints
+- **Component B**: Data pipeline demonstration
+  - Human demonstrates task via video
+  - human2robot converts to training data
+  - Imitation learning trains the model
+
+---
+
+## 🤔 Open Research Questions
+
+### The Camera Problem
+**Challenge**: Real robots need visual input during operation, not just joint trajectories.
+
+- **Current state**: We generate joint motion data from video
+- **Missing piece**: How does the robot "see" during execution?
+- **Questions**:
+  - Can we generate synthetic camera views for the robot's perspective?
+  - How do we bridge human hand demonstrations to robot end-effector views?
+  - Can we train vision models to translate between human and robot perspectives?
+
+### Potential Solutions
+1. **Domain Transfer**: Train vision models to map human→robot viewpoints
+2. **Synthetic Data**: Generate robot-perspective videos from human demonstrations
+3. **Multi-modal Training**: Combine trajectory data with vision adaptation
+4. **View Synthesis**: Use computer graphics to render robot's perspective
+
+---
+
+## 🛠 Getting Started
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/human2robot.git
+cd human2robot
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the pipeline
+python scripts/video_to_robot_data.py --input demo_video.mp4 --robot_config so101
+```
+
+## 📊 Pipeline Overview
+
+```
+Human Video → CV Analysis → Inverse Kinematics → Robot Training Data → Imitation Learning
+     ↓              ↓              ↓                    ↓                    ↓
+  demo.mp4    trajectories.json  joint_data.csv   lerobot_dataset/    trained_policy.pt
+```
+
+## 🎯 Current Status
+
+- [x] Project setup and architecture design
+- [ ] Computer vision pipeline for motion extraction
+- [ ] Inverse kinematics solver implementation
+- [ ] Integration testing with sample data
+- [ ] LeRobot dataset format compatibility
+- [ ] Demo marketplace interface
+
+## 🤝 Contributing
+
+This is a hackathon exploration project. We welcome:
+- Ideas for solving the camera perspective problem
+- Improvements to the CV→IK pipeline
+- Real-world testing and validation
+- Extensions to new robot platforms
+
+---
+
+## 📋 Development Roadmap
+
+### 📱 MVP Demo (Week 1)
+**Goal**: End-to-end pipeline from video → robot policy
+
+**Core Tasks:**
+1. **Complete Inverse Kinematics Bridge** (`hand_to_robot_ik.py`)
+   - Hand coordinate → robot workspace mapping
+   - 5DOF arm + gripper IK solver integration
+   - Temporal trajectory generation
+
+2. **Data Pipeline Integration**
+   - Convert CV+IK outputs to LeRobot dataset format
+   - Implement observation-action pair generation
+   - Add temporal synchronization and smoothing
+
+3. **Demo Implementation**
+   - Simple chess piece movement task
+   - Single camera, fixed workspace setup
+   - ACT policy training on generated data
+
+### 🚀 High-Impact Research Extensions (Weeks 2-4)
+
+**Vision & Perception Research:**
+- **Multi-view Geometry**: Camera calibration and 3D reconstruction from human demonstrations
+- **Domain Adaptation**: Learning visual mappings between human and robot perspectives
+- **Temporal Action Segmentation**: Automatic detection of action primitives in demonstrations
+
+**Robotics & Control:**
+- **Workspace Scaling**: Adaptive mapping between human and robot workspaces
+- **Trajectory Optimization**: Physics-informed smoothing and feasibility constraints
+- **Multi-robot Coordination**: Extending to bimanual or multi-agent scenarios
+
+**Machine Learning Foundations:**
+- **Comparative Policy Analysis**: Systematic evaluation of ACT vs Diffusion Policy performance
+- **Data Efficiency**: Few-shot learning from minimal human demonstrations
+- **Uncertainty Quantification**: Confidence estimation in generated robot trajectories
+
+**Novel Research Directions:**
+- **Synthetic Data Augmentation**: Physics simulation for expanding training datasets
+- **Cross-embodiment Transfer**: Learning mappings between different robot morphologies
+- **Interactive Learning**: Real-time feedback and correction mechanisms
+
+**Sensor Fusion & Modalities:**
+- **LiDAR Integration**: iPhone LiDAR (256x192) depth sensing for 3D workspace understanding
+- **Multi-sensor Fusion**: Combine RGB, depth, IMU, and tactile feedback
+- **Sensor Modality Transfer**: Learn mappings between different sensor types
+
+**Beyond Imitation Learning:**
+- **Hybrid IL+RL**: Use IL for reliable scene reset, then overnight RL for task optimization
+- **Comprehensive IL Survey**: Implement and compare SQIL, ValueDice, IQ-Learn, f-BRAC
+- **Advanced IL Methods**: Adversarial IL (GAIL), Distribution Matching (PM, BC-O)
+- **Simulation-to-Reality**: Isaac Lab integration for physics-based training
+
+### 🎯 Learning & Research Skills Development
+
+**Foundational Understanding:**
+- Implement core algorithms from scratch (IK solvers, transformers, diffusion models)
+- Mathematical foundations: robotics kinematics, probabilistic models, optimization
+- Experimental design: hypothesis formation, systematic evaluation, statistical analysis
+
+**Innovation Opportunities:**
+- **Novel Loss Functions**: Task-specific objectives for trajectory generation
+- **Architecture Design**: Custom neural network components for robotics
+- **Benchmark Creation**: Standardized evaluation protocols for video-to-robot learning
+
+### ⚠️ Hardware Access Timeline
+**Critical Constraint**: Hardware access ends in 5 days, then 2-4 month gap
+- **Priority**: Focus on simulation-based development (Isaac Lab, MuJoCo)
+- **Data Collection Sprint**: Gather comprehensive demonstration videos while hardware available
+- **Simulation-First Approach**: Develop and validate algorithms in simulation for future hardware deployment
+
+---
+
+## 🔗 Built on LeRobot Foundation
+
+This project builds upon the excellent [LeRobot](https://github.com/huggingface/lerobot) framework for the imitation learning components.
+
+### Original LeRobot Description
 🤗 LeRobot aims to provide models, datasets, and tools for real-world robotics in PyTorch. The goal is to lower the barrier to entry to robotics so that everyone can contribute and benefit from sharing datasets and pretrained models.
 
 🤗 LeRobot contains state-of-the-art approaches that have been shown to transfer to the real-world with a focus on imitation learning and reinforcement learning.
@@ -90,121 +304,107 @@
 
 ### Acknowledgment
 
+- The LeRobot team 🤗 for building SmolVLA [Paper](https://arxiv.org/abs/2506.01844), [Blog](https://huggingface.co/blog/smolvla).
 - Thanks to Tony Zhao, Zipeng Fu and colleagues for open sourcing ACT policy, ALOHA environments and datasets. Ours are adapted from [ALOHA](https://tonyzhaozh.github.io/aloha) and [Mobile ALOHA](https://mobile-aloha.github.io).
 - Thanks to Cheng Chi, Zhenjia Xu and colleagues for open sourcing Diffusion policy, Pusht environment and datasets, as well as UMI datasets. Ours are adapted from [Diffusion Policy](https://diffusion-policy.cs.columbia.edu) and [UMI Gripper](https://umi-gripper.github.io).
 - Thanks to Nicklas Hansen, Yunhai Feng and colleagues for open sourcing TDMPC policy, Simxarm environments and datasets. Ours are adapted from [TDMPC](https://github.com/nicklashansen/tdmpc) and [FOWM](https://www.yunhaifeng.com/FOWM).
 - Thanks to Antonio Loquercio and Ashish Kumar for their early support.
 - Thanks to [Seungjae (Jay) Lee](https://sjlee.cc/), [Mahi Shafiullah](https://mahis.life/) and colleagues for open sourcing [VQ-BeT](https://sjlee.cc/vq-bet/) policy and helping us adapt the codebase to our repository. The policy is adapted from [VQ-BeT repo](https://github.com/jayLEE0301/vq_bet_official).
 
-
 ## Installation
 
 Download our source code:
+
 ```bash
 git clone https://github.com/huggingface/lerobot.git
 cd lerobot
 ```
 
 Create a virtual environment with Python 3.10 and activate it, e.g. with [`miniconda`](https://docs.anaconda.com/free/miniconda/index.html):
+
 ```bash
 conda create -y -n lerobot python=3.10
 conda activate lerobot
 ```
 
 When using `miniconda`, install `ffmpeg` in your environment:
+
 ```bash
 conda install ffmpeg -c conda-forge
 ```
 
 > **NOTE:** This usually installs `ffmpeg 7.X` for your platform compiled with the `libsvtav1` encoder. If `libsvtav1` is not supported (check supported encoders with `ffmpeg -encoders`), you can:
->  - _[On any platform]_ Explicitly install `ffmpeg 7.X` using:
->  ```bash
->  conda install ffmpeg=7.1.1 -c conda-forge
->  ```
->  - _[On Linux only]_ Install [ffmpeg build dependencies](https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu#GettheDependencies) and [compile ffmpeg from source with libsvtav1](https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu#libsvtav1), and make sure you use the corresponding ffmpeg binary to your install with `which ffmpeg`.
+>
+> - _[On any platform]_ Explicitly install `ffmpeg 7.X` using:
+>
+> ```bash
+> conda install ffmpeg=7.1.1 -c conda-forge
+> ```
+>
+> - _[On Linux only]_ Install [ffmpeg build dependencies](https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu#GettheDependencies) and [compile ffmpeg from source with libsvtav1](https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu#libsvtav1), and make sure you use the corresponding ffmpeg binary to your install with `which ffmpeg`.
 
 Install 🤗 LeRobot:
+
 ```bash
 pip install -e .
 ```
 
 > **NOTE:** If you encounter build errors, you may need to install additional dependencies (`cmake`, `build-essential`, and `ffmpeg libs`). On Linux, run:
-`sudo apt-get install cmake build-essential python3-dev pkg-config libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev pkg-config`. For other systems, see: [Compiling PyAV](https://pyav.org/docs/develop/overview/installation.html#bring-your-own-ffmpeg)
+> `sudo apt-get install cmake build-essential python3-dev pkg-config libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev`. For other systems, see: [Compiling PyAV](https://pyav.org/docs/develop/overview/installation.html#bring-your-own-ffmpeg)
 
 For simulations, 🤗 LeRobot comes with gymnasium environments that can be installed as extras:
+
 - [aloha](https://github.com/huggingface/gym-aloha)
 - [xarm](https://github.com/huggingface/gym-xarm)
 - [pusht](https://github.com/huggingface/gym-pusht)
 
 For instance, to install 🤗 LeRobot with aloha and pusht, use:
+
 ```bash
 pip install -e ".[aloha, pusht]"
 ```
 
 To use [Weights and Biases](https://docs.wandb.ai/quickstart) for experiment tracking, log in with
+
 ```bash
 wandb login
 ```
 
 (note: you will also need to enable WandB in the configuration. See below.)
 
-## Walkthrough
-
-```
-.
-├── examples             # contains demonstration examples, start here to learn about LeRobot
-|   └── advanced         # contains even more examples for those who have mastered the basics
-├── lerobot
-|   ├── configs          # contains config classes with all options that you can override in the command line
-|   ├── common           # contains classes and utilities
-|   |   ├── datasets       # various datasets of human demonstrations: aloha, pusht, xarm
-|   |   ├── envs           # various sim environments: aloha, pusht, xarm
-|   |   ├── policies       # various policies: act, diffusion, tdmpc
-|   |   ├── robot_devices  # various real devices: dynamixel motors, opencv cameras, koch robots
-|   |   └── utils          # various utilities
-|   └── scripts          # contains functions to execute via command line
-|       ├── eval.py                 # load policy and evaluate it on an environment
-|       ├── train.py                # train a policy via imitation learning and/or reinforcement learning
-|       ├── control_robot.py        # teleoperate a real robot, record data, run a policy
-|       ├── push_dataset_to_hub.py  # convert your dataset into LeRobot dataset format and upload it to the Hugging Face hub
-|       └── visualize_dataset.py    # load a dataset and render its demonstrations
-├── outputs               # contains results of scripts execution: logs, videos, model checkpoints
-└── tests                 # contains pytest utilities for continuous integration
-```
-
 ### Visualize datasets
 
 Check out [example 1](./examples/1_load_lerobot_dataset.py) that illustrates how to use our dataset class which automatically downloads data from the Hugging Face hub.
 
 You can also locally visualize episodes from a dataset on the hub by executing our script from the command line:
+
 ```bash
-python lerobot/scripts/visualize_dataset.py \
+python -m lerobot.scripts.visualize_dataset \
     --repo-id lerobot/pusht \
     --episode-index 0
 ```
 
 or from a dataset in a local folder with the `root` option and the `--local-files-only` (in the following case the dataset will be searched for in `./my_local_data_dir/lerobot/pusht`)
+
 ```bash
-python lerobot/scripts/visualize_dataset.py \
+python -m lerobot.scripts.visualize_dataset \
     --repo-id lerobot/pusht \
     --root ./my_local_data_dir \
     --local-files-only 1 \
     --episode-index 0
 ```
 
-
 It will open `rerun.io` and display the camera streams, robot states and actions, like this:
 
 https://github-production-user-asset-6210df.s3.amazonaws.com/4681518/328035972-fd46b787-b532-47e2-bb6f-fd536a55a7ed.mov?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240505%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240505T172924Z&X-Amz-Expires=300&X-Amz-Signature=d680b26c532eeaf80740f08af3320d22ad0b8a4e4da1bcc4f33142c15b509eda&X-Amz-SignedHeaders=host&actor_id=24889239&key_id=0&repo_id=748713144
 
-
-Our script can also visualize datasets stored on a distant server. See `python lerobot/scripts/visualize_dataset.py --help` for more instructions.
+Our script can also visualize datasets stored on a distant server. See `python -m lerobot.scripts.visualize_dataset --help` for more instructions.
 
 ### The `LeRobotDataset` format
 
 A dataset in `LeRobotDataset` format is very simple to use. It can be loaded from a repository on the Hugging Face hub or a local folder simply with e.g. `dataset = LeRobotDataset("lerobot/aloha_static_coffee")` and can be indexed into like any Hugging Face and PyTorch dataset. For instance `dataset[0]` will retrieve a single temporal frame from the dataset containing observation(s) and an action as PyTorch tensors ready to be fed to a model.
 
-A specificity of `LeRobotDataset` is that, rather than retrieving a single frame by its index, we can retrieve several frames based on their temporal relationship with the indexed frame, by setting `delta_timestamps` to a list of relative times with respect to the indexed frame. For example, with `delta_timestamps = {"observation.image": [-1, -0.5, -0.2, 0]}`  one can retrieve, for a given index, 4 frames: 3 "previous" frames 1 second, 0.5 seconds, and 0.2 seconds before the indexed frame, and the indexed frame itself (corresponding to the 0 entry). See example [1_load_lerobot_dataset.py](examples/1_load_lerobot_dataset.py) for more details on `delta_timestamps`.
+A specificity of `LeRobotDataset` is that, rather than retrieving a single frame by its index, we can retrieve several frames based on their temporal relationship with the indexed frame, by setting `delta_timestamps` to a list of relative times with respect to the indexed frame. For example, with `delta_timestamps = {"observation.image": [-1, -0.5, -0.2, 0]}` one can retrieve, for a given index, 4 frames: 3 "previous" frames 1 second, 0.5 seconds, and 0.2 seconds before the indexed frame, and the indexed frame itself (corresponding to the 0 entry). See example [1_load_lerobot_dataset.py](examples/1_load_lerobot_dataset.py) for more details on `delta_timestamps`.
 
 Under the hood, the `LeRobotDataset` format makes use of several ways to serialize data which can be useful to understand if you plan to work more closely with this format. We tried to make a flexible yet simple dataset format that would cover most type of features and specificities present in reinforcement learning and robotics, in simulation and in real-world, with a focus on cameras and robot states but easily extended to other types of sensory inputs as long as they can be represented by a tensor.
 
@@ -239,6 +439,7 @@ dataset attributes:
 ```
 
 A `LeRobotDataset` is serialised using several widespread file formats for each of its parts, namely:
+
 - hf_dataset stored using Hugging Face datasets library serialization to parquet
 - videos are stored in mp4 format to save space
 - metadata are stored in plain json/jsonl files
@@ -250,8 +451,9 @@ Dataset can be uploaded/downloaded from the HuggingFace hub seamlessly. To work 
 Check out [example 2](./examples/2_evaluate_pretrained_policy.py) that illustrates how to download a pretrained policy from Hugging Face hub, and run an evaluation on its corresponding environment.
 
 We also provide a more capable script to parallelize the evaluation over multiple environments during the same rollout. Here is an example with a pretrained model hosted on [lerobot/diffusion_pusht](https://huggingface.co/lerobot/diffusion_pusht):
+
 ```bash
-python lerobot/scripts/eval.py \
+python -m lerobot.scripts.eval \
     --policy.path=lerobot/diffusion_pusht \
     --env.type=pusht \
     --eval.batch_size=10 \
@@ -263,10 +465,10 @@ python lerobot/scripts/eval.py \
 Note: After training your own policy, you can re-evaluate the checkpoints with:
 
 ```bash
-python lerobot/scripts/eval.py --policy.path={OUTPUT_DIR}/checkpoints/last/pretrained_model
+python -m lerobot.scripts.eval --policy.path={OUTPUT_DIR}/checkpoints/last/pretrained_model
 ```
 
-See `python lerobot/scripts/eval.py --help` for more instructions.
+See `python -m lerobot.scripts.eval --help` for more instructions.
 
 ### Train your own policy
 
@@ -278,15 +480,17 @@ A link to the wandb logs for the run will also show up in yellow in your termina
 
 ![](media/wandb.png)
 
-Note: For efficiency, during training every checkpoint is evaluated on a low number of episodes. You may use `--eval.n_episodes=500` to evaluate on more episodes than the default. Or, after training, you may want to re-evaluate your best checkpoints on more episodes or change the evaluation settings. See `python lerobot/scripts/eval.py --help` for more instructions.
+Note: For efficiency, during training every checkpoint is evaluated on a low number of episodes. You may use `--eval.n_episodes=500` to evaluate on more episodes than the default. Or, after training, you may want to re-evaluate your best checkpoints on more episodes or change the evaluation settings. See `python -m lerobot.scripts.eval --help` for more instructions.
 
 #### Reproduce state-of-the-art (SOTA)
 
 We provide some pretrained policies on our [hub page](https://huggingface.co/lerobot) that can achieve state-of-the-art performances.
 You can reproduce their training by loading the config from their run. Simply running:
+
 ```bash
-python lerobot/scripts/train.py --config_path=lerobot/diffusion_pusht
+python -m lerobot.scripts.train --config_path=lerobot/diffusion_pusht
 ```
+
 reproduces SOTA results for Diffusion Policy on the PushT task.
 
 ## Contribute
@@ -311,29 +515,31 @@ python lerobot/scripts/push_dataset_to_hub.py \
 
 See `python lerobot/scripts/push_dataset_to_hub.py --help` for more instructions.
 
-If your dataset format is not supported, implement your own in `lerobot/common/datasets/push_dataset_to_hub/${raw_format}_format.py` by copying examples like [pusht_zarr](https://github.com/huggingface/lerobot/blob/main/lerobot/common/datasets/push_dataset_to_hub/pusht_zarr_format.py), [umi_zarr](https://github.com/huggingface/lerobot/blob/main/lerobot/common/datasets/push_dataset_to_hub/umi_zarr_format.py), [aloha_hdf5](https://github.com/huggingface/lerobot/blob/main/lerobot/common/datasets/push_dataset_to_hub/aloha_hdf5_format.py), or [xarm_pkl](https://github.com/huggingface/lerobot/blob/main/lerobot/common/datasets/push_dataset_to_hub/xarm_pkl_format.py). -->
-
+If your dataset format is not supported, implement your own in `lerobot/datasets/push_dataset_to_hub/${raw_format}_format.py` by copying examples like [pusht_zarr](https://github.com/huggingface/lerobot/blob/main/lerobot/datasets/push_dataset_to_hub/pusht_zarr_format.py), [umi_zarr](https://github.com/huggingface/lerobot/blob/main/lerobot/datasets/push_dataset_to_hub/umi_zarr_format.py), [aloha_hdf5](https://github.com/huggingface/lerobot/blob/main/lerobot/datasets/push_dataset_to_hub/aloha_hdf5_format.py), or [xarm_pkl](https://github.com/huggingface/lerobot/blob/main/lerobot/datasets/push_dataset_to_hub/xarm_pkl_format.py). -->
 
 ### Add a pretrained policy
 
 Once you have trained a policy you may upload it to the Hugging Face hub using a hub id that looks like `${hf_user}/${repo_name}` (e.g. [lerobot/diffusion_pusht](https://huggingface.co/lerobot/diffusion_pusht)).
 
 You first need to find the checkpoint folder located inside your experiment directory (e.g. `outputs/train/2024-05-05/20-21-12_aloha_act_default/checkpoints/002500`). Within that there is a `pretrained_model` directory which should contain:
+
 - `config.json`: A serialized version of the policy configuration (following the policy's dataclass config).
 - `model.safetensors`: A set of `torch.nn.Module` parameters, saved in [Hugging Face Safetensors](https://huggingface.co/docs/safetensors/index) format.
 - `train_config.json`: A consolidated configuration containing all parameters used for training. The policy configuration should match `config.json` exactly. This is useful for anyone who wants to evaluate your policy or for reproducibility.
 
 To upload these to the hub, run the following:
+
 ```bash
 huggingface-cli upload ${hf_user}/${repo_name} path/to/pretrained_model
 ```
 
 See [eval.py](https://github.com/huggingface/lerobot/blob/main/lerobot/scripts/eval.py) for an example of how other people may use your policy.
 
-
 ### Improve your code with profiling
 
 An example of a code snippet to profile the evaluation of a policy:
+
+<!-- prettier-ignore-start -->
 ```python
 from torch.profiler import profile, record_function, ProfilerActivity
 
@@ -354,13 +560,15 @@ with profile(
             prof.step()
             # insert code to profile, potentially whole body of eval_policy function
 ```
+<!-- prettier-ignore-end -->
 
 ## Citation
 
 If you want, you can cite this work with:
+
 ```bibtex
 @misc{cadene2024lerobot,
-    author = {Cadene, Remi and Alibert, Simon and Soare, Alexander and Gallouedec, Quentin and Zouitine, Adil and Wolf, Thomas},
+    author = {Cadene, Remi and Alibert, Simon and Soare, Alexander and Gallouedec, Quentin and Zouitine, Adil and Palma, Steven and Kooijmans, Pepijn and Aractingi, Michel and Shukor, Mustafa and Aubakirova, Dana and Russi, Martino and Capuano, Francesco and Pascale, Caroline and Choghari, Jade and Moss, Jess and Wolf, Thomas},
     title = {LeRobot: State-of-the-art Machine Learning for Real-World Robotics in Pytorch},
     howpublished = "\url{https://github.com/huggingface/lerobot}",
     year = {2024}
@@ -369,7 +577,19 @@ If you want, you can cite this work with:
 
 Additionally, if you are using any of the particular policy architecture, pretrained models, or datasets, it is recommended to cite the original authors of the work as they appear below:
 
+- [SmolVLA](https://arxiv.org/abs/2506.01844)
+
+```bibtex
+@article{shukor2025smolvla,
+  title={SmolVLA: A Vision-Language-Action Model for Affordable and Efficient Robotics},
+  author={Shukor, Mustafa and Aubakirova, Dana and Capuano, Francesco and Kooijmans, Pepijn and Palma, Steven and Zouitine, Adil and Aractingi, Michel and Pascal, Caroline and Russi, Martino and Marafioti, Andres and Alibert, Simon and Cord, Matthieu and Wolf, Thomas and Cadene, Remi},
+  journal={arXiv preprint arXiv:2506.01844},
+  year={2025}
+}
+```
+
 - [Diffusion Policy](https://diffusion-policy.cs.columbia.edu)
+
 ```bibtex
 @article{chi2024diffusionpolicy,
 	author = {Cheng Chi and Zhenjia Xu and Siyuan Feng and Eric Cousineau and Yilun Du and Benjamin Burchfiel and Russ Tedrake and Shuran Song},
@@ -378,7 +598,9 @@ Additionally, if you are using any of the particular policy architecture, pretra
 	year = {2024},
 }
 ```
+
 - [ACT or ALOHA](https://tonyzhaozh.github.io/aloha)
+
 ```bibtex
 @article{zhao2023learning,
   title={Learning fine-grained bimanual manipulation with low-cost hardware},
@@ -400,6 +622,7 @@ Additionally, if you are using any of the particular policy architecture, pretra
 ```
 
 - [VQ-BeT](https://sjlee.cc/vq-bet/)
+
 ```bibtex
 @article{lee2024behavior,
   title={Behavior generation with latent actions},
@@ -408,6 +631,20 @@ Additionally, if you are using any of the particular policy architecture, pretra
   year={2024}
 }
 ```
+
+- [HIL-SERL](https://hil-serl.github.io/)
+
+```bibtex
+@Article{luo2024hilserl,
+title={Precise and Dexterous Robotic Manipulation via Human-in-the-Loop Reinforcement Learning},
+author={Jianlan Luo and Charles Xu and Jeffrey Wu and Sergey Levine},
+year={2024},
+eprint={2410.21845},
+archivePrefix={arXiv},
+primaryClass={cs.RO}
+}
+```
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=huggingface/lerobot&type=Timeline)](https://star-history.com/#huggingface/lerobot&Timeline)
